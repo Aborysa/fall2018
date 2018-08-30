@@ -17,14 +17,14 @@ module Lib
 
 import Control.Monad (mapM_)
 import Prelude hiding (take)
-
+import Data.Char
 -- TASK 1
 -- Simple functions
 
 -- finish the function "add" that takes two integers
 -- and returns the sum of them
 add :: Int -> Int -> Int
-add n m = undefined
+add n m = n + m
 
 -- complete the function "isVowel" which
 -- takes a character and returns True
@@ -32,7 +32,7 @@ add n m = undefined
 -- hint: a string is a list
 -- hint2: use `elem` from Prelude
 isVowel :: Char -> Bool
-isVowel chr = undefined
+isVowel chr = elem (toUpper chr) "AEIOUY"
 
 data Status = One | Two | Three | None deriving (Show, Eq)
 
@@ -52,7 +52,7 @@ amountOf = undefined
 -- assuming that 0th = 0 and 1st = 1
 -- do not optimize it
 fib :: Int -> Int
-fib = undefined
+fib n = fib (n-1) + fib(n-2)
 
 -- TASK 3
 -- Working with lists
@@ -61,14 +61,14 @@ fib = undefined
 -- strings and returns them with the ending -ing
 -- if the string is empty, remove it from the list
 ending :: [String] -> [String]
-ending = undefined
+ending arr = map (++"ing") (filter (not . null) arr)
 
 -- complete the function "takeInt" that
 -- an integer n and a list of integers and
 -- returns the first n elements of 
 -- the list
 takeInt :: Int -> [Int] -> [Int]
-takeInt = undefined
+takeInt n a = take n a
 
 -- implement "fizzbuzz" as described in exercise 1
 fizzbuzz :: [String]
@@ -84,7 +84,7 @@ printFizz = mapM_ putStrLn fizzbuzz
 -- even numbers that are equal or greater than 0
 -- use a list comprehension
 listOfEven :: [Integer]
-listOfEven = undefined
+listOfEven l = filter(>0) filter (\n -> mod n 2 == 0 and n > 0) l
 
 -- create a list of tuples, "zipped"
 -- where each tuple contains the nth entry
