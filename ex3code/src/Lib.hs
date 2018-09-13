@@ -19,6 +19,7 @@ module Lib
 import Prelude hiding (foldr, maximum, minimum, any, all, length
                       , concat, sum, product, elem, Foldable(..))
 
+
 -- TASK 2
 -- Bounded parametric polymorphism
 
@@ -28,20 +29,36 @@ import Prelude hiding (foldr, maximum, minimum, any, all, length
 -- Maybe is imported from Prelude and is defined like this:
 -- data Maybe a = Just a | Nothing
 
+
 listSum :: (Num a) => [a] -> a
-listSum = undefined
+listSum [] = 0
+listSum (h:t) = h + (listSum t)
+
+
+
 
 listProduct :: (Num a) => [a] -> a
-listProduct = undefined
+listProduct [] = 1
+listProduct (h:t) = h + (listProduct t)
 
 listConcat :: [[a]] -> [a]
-listConcat = undefined
+listConcat [] = []
+listConcat (h:t) = h ++ (listConcat t)
 
 listMaximum :: (Ord a) => [a] -> Maybe a
-listMaximum = undefined
+listMaximum [] = Nothing
+listMaximum (h:t) = do
+  case listMaximum t of
+    Just a -> Just (a `max` h)
+    Nothing -> Just h
 
 listMinimum :: (Ord a) => [a] -> Maybe a
-listMinimum = undefined
+listMinimum [] = Nothing
+listMinimum (h:t) = do
+  case listMaximum t of
+    Just a -> Just (a `min` h)
+    Nothing -> Just h
+
 
 -- TASK 3 Folds
 
@@ -89,21 +106,21 @@ all p = undefined
 
 -- TASK 4
 -- Num Complex
- 
-data Complex = Complex Double Double deriving (Eq) 
- 
-instance Show Complex where 
-    show (Complex r i) 
-        | i >= 0 = show r ++ "+" ++ show i ++ "i" 
-        | otherwise = show r ++ "-" ++ show (abs i) ++ "i" 
 
-instance Num Complex where 
+data Complex = Complex Double Double deriving (Eq)
+
+instance Show Complex where
+    show (Complex r i)
+        | i >= 0 = show r ++ "+" ++ show i ++ "i"
+        | otherwise = show r ++ "-" ++ show (abs i) ++ "i"
+
+instance Num Complex where
     (+) = undefined
     (*) = undefined
-    abs = undefined 
+    abs = undefined
     signum = undefined
-    fromInteger = undefined 
-    negate = undefined 
+    fromInteger = undefined
+    negate = undefined
 
 -- TASK 5
 -- Making your own type classes
