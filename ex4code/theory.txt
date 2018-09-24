@@ -1,0 +1,32 @@
+
+
+
+2. Describe the grammar of the infix notation in task 3 using (E)BNF. Beware
+of operator precedence. Is the grammar ambiguous? Explain why it is or
+is not ambiguous?
+
+S := I | ( S O S )
+O := + | - | * | /
+I ::= ND?D*
+D ::= '0' | ND
+ND ::= '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
+
+3. What is the difference between a context-sensitive and a context-free grammar?
+Context-free grammar does not take into account any context when evaluating a rule, context-sensitive grammer on the other hand
+can take into account a context when evaluating a rule producing differing branches depending on the context
+
+4. Given the grammar below, determine which of the strings are legal in the
+language:
+<S> ::= <Z> | <X>
+<Z> ::= z <Z> y | z <Y> y | e
+<Y> ::= z <Y> y x | e
+<X> ::= x <X> x | e
+
+a) zzyy - valid S -> Z -> zZy -> zzZyy -> zzyye
+b) xxzyxxx - invalid
+c) xxxx - valid
+d) zzyxyx - invalid
+e) zzzyxyxy - valid S -> Z -> zYy -> zzYyxy -> zzzYyxyxy
+f) zzyxy - valid
+g) zxxy - invalid
