@@ -1,0 +1,51 @@
+Task 1
+b. is wrong
+
+There is no rule in the grammar that inserts c into the middle of a given string
+
+
+Task 3
+d. is correct
+
+Task 4
+c. is correct
+
+Task 5
+b. is correct
+
+1+2*3 can be parsed as ((1+2)*3) and as (1+(2*3))
+
+Task 6
+c. is correct
+
+Task 7
+d. is correct
+
+Task 8
+a.
+The identifier a is assigned the value 5 on the first line, making the identifier a global
+it will not however interfear with func's argument which is also named a because local identifiers take precidence over global ones.
+
+
+Task 9
+It is possible to use the same names in the record fields because haskell will generate intermediate code in order to handle the different cases
+
+
+Task 10
+c. is correct
+It is neither a total or a partial function, while it is defined for all valid inputs it doesn't return the input type for all inputs
+
+Task 11
+a. is correct
+The function returns a Maybe for all inputs
+
+Task 12
+a. is correct
+the function returns an error for all inputs
+
+Task 13
+a. is correct
+the function returns an Integer for all inputs
+
+Task 14
+b. (factorial is a total function but not for the reason listed, it is total regardless of it throwing an error or not) and d. are both correct

@@ -21,3 +21,10 @@ fib n        = add (fib $ minus n $ fromInteger 2) (fib $ minus n $ S Zero)
                     where
                 minus two Zero    = two
                 minus (S n) (S m) = minus n m
+
+
+
+wordsInText :: [[Char]] -> [Char] -> Bool
+wordsInText [[]] _ = False
+wordsInText _ [] = False
+wordsInText (word:rest) text = (word `elem` text) or wordsInText (rest text)
