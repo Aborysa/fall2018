@@ -60,7 +60,6 @@ splitOn token list@(h:t)
 
 data Token = TokOp Op
            | TokInt Int
-           | TokErr
            deriving (Eq, Show)
 
 data Op = Plus
@@ -74,25 +73,25 @@ data Op = Plus
 lex :: String -> [String]
 lex a = splitOn ' ' a
 
-stringToToken "+" = TokOp Plus
-stringToToken "--" = TokOp AddInv
-stringToToken "#" = TokOp Dupe
-stringToToken "-" = TokOp Minus
-stringToToken "/" = TokOp Div
-stringToToken "*" = TokOp Mult
+stringToToken "+" = Just $ TokOp Plus
+stringToToken "--" = Just $ TokOp AddInv
+stringToToken "#" = Just $ TokOp Dupe
+stringToToken "-" = Just $ TokOp Minus
+stringToToken "/" = Just $ TokOp Div
+stringToToken "*" = Just $ TokOp Mult
 stringToToken a
-  | justDigits == a = TokInt (read a)
+  | justDigits == a = Just $ TokInt (read a)
   where justDigits = takeWhile isDigit a
 
-stringToToken _ = TokErr
+stringToToken _ = Nothing
 
 
 
 
-tokenize :: [String] -> [Token]
+tokenize :: [String] -> Maybe [Token]
 tokenize a
-  | TokErr `elem` parsed = [TokErr]
-  | otherwise = parsed
+  | Nothing `elem` parsed = Nothing
+  | otherwise = Just [x | Just x <- parsed]
   where parsed = [stringToToken x | x <- a]
 
 
@@ -110,6 +109,7 @@ doopMaybe _ _ = Nothing
 
 
 interpret :: [Token] -> [Token]
+
 --interpret (TokInt a:TokOp c:xs) = case c of
 --  Just [a1, b1] -> [TokInt a1, TokInt b1]
 --  Just [a1] -> [TokInt a1]

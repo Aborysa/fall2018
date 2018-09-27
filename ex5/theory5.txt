@@ -1,6 +1,5 @@
 Task 1
 b. is wrong
-
 There is no rule in the grammar that inserts c into the middle of a given string
 
 
@@ -12,7 +11,6 @@ c. is correct
 
 Task 5
 b. is correct
-
 1+2*3 can be parsed as ((1+2)*3) and as (1+(2*3))
 
 Task 6
@@ -49,3 +47,9 @@ the function returns an Integer for all inputs
 
 Task 14
 b. (factorial is a total function but not for the reason listed, it is total regardless of it throwing an error or not) and d. are both correct
+
+
+Task 15
+Negative: by creating your own types for numbers you don't get to use much of the standard library's (and other librarie's) mathematics
+functions without constantly converting back and forth between the standard types and your custom types which adds unnessesary complexity
+Positive: sometimes it can be easier to handle non-legal inputs, in this case negative numbers are not an issue since they're not defined for the custom Nat type.
