@@ -140,10 +140,10 @@ opLeq _ (TokOp Minus) = True
 opLeq _ (TokOp Plus) = False
 
 shunt :: [Token] -> [Token]
-shunt a = interpret $ shuntInternal a [] []
+shunt a = shuntInternal a [] []
 
 shuntInternal :: [Token] -> [Token] -> [Token] -> [Token]
-shuntInternal [] out op = out++(sortBy (\a b -> if opLeq a b then GT else LT) op)
+shuntInternal [] out op = reverse ((sortBy (\a b -> if opLeq a b then GT else LT) op) ++ out)
 shuntInternal (TokInt h:xs) out op = shuntInternal xs (out++[TokInt h]) op
 shuntInternal (TokOp h:xs) out [] = shuntInternal xs out [TokOp h]
 shuntInternal i@(TokOp h:xs) out op@(t:rs)

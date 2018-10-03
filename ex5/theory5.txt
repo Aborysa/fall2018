@@ -2,6 +2,9 @@ Task 1
 b. is wrong
 There is no rule in the grammar that inserts c into the middle of a given string
 
+Task 2
+d. is correct, has infinite recursion
+
 
 Task 3
 d. is correct
@@ -11,7 +14,7 @@ c. is correct
 
 Task 5
 b. is correct
-1+2*3 can be parsed as ((1+2)*3) and as (1+(2*3))
+1+2*3 can be parsed as ((1+2)*3) = 9 and as (1+(2*3)) = 7
 
 Task 6
 c. is correct
