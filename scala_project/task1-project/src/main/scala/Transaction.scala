@@ -6,7 +6,7 @@ object TransactionStatus extends Enumeration {
 }
 
 class TransactionQueue {
-    private var queue: Queue = new Queue()
+    private var queue: mutable.Queue[Transaction] = new mutable.Queue()
     // Remove and return the first element from the queue
     def pop: Transaction = {
         return queue.dequeue
@@ -24,7 +24,7 @@ class TransactionQueue {
 
     // Return the first element from the queue without removing it
     def peek: Transaction = {
-        return queue.peek
+        return queue.front
     }
 
     // Return an iterator to allow you to iterate over the queue
@@ -43,11 +43,28 @@ class Transaction(val transactionsQueue: TransactionQueue,
   var status: TransactionStatus.Value = TransactionStatus.PENDING
 
   override def run: Unit = {
+        def doTransaction() = {
 
-      def doTransaction() = {
-          from withdraw amount
-          to deposit amount
-      }
+            val acc1Balance = from.getBalanceAmount
+            val acc2Balance = to.getBalanceAmount
+            
+            try {
+                from withdraw amount
+                to deposit amount
+                status = TransactionStatus.SUCCESS
+            } catch {
+                case e : Exception => {
+                    from deposit (acc1Balance - from.getBalanceAmount)
+                    from withdraw (to.getBalanceAmount - acc2Balance)
+                    status = TransactionStatus.FAILED
+                    if (allowedAttemps > 0) {
+                        transactionsQueue.push(new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttemps - 1))
+                    }
+                }
+            }
+            processedTransactions.push(this)
+            printf("Pushing to processed %d\n", processedTransactions.iterator.length)
+        }
 
       if (from.uid < to.uid) from synchronized {
           to synchronized {
