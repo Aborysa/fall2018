@@ -8,7 +8,7 @@ object TransactionStatus extends Enumeration {
 class TransactionQueue {
     private var queue: mutable.Queue[Transaction] = new mutable.Queue()
     // Remove and return the first element from the queue
-    def pop: Transaction = {
+    def pop: Transaction = synchronized {
         return queue.dequeue
     }
 
@@ -18,7 +18,7 @@ class TransactionQueue {
     }
 
     // Add new element to the back of the queue
-    def push(t: Transaction): Unit = {
+    def push(t: Transaction): Unit = synchronized {
         queue += t
     }
 
@@ -28,7 +28,7 @@ class TransactionQueue {
     }
 
     // Return an iterator to allow you to iterate over the queue
-    def iterator: Iterator[Transaction] = {
+    def iterator: Iterator[Transaction] = synchronized {
         return queue.iterator
     }
 }
@@ -58,12 +58,12 @@ class Transaction(val transactionsQueue: TransactionQueue,
                     from withdraw (to.getBalanceAmount - acc2Balance)
                     status = TransactionStatus.FAILED
                     if (allowedAttemps > 0) {
-                        transactionsQueue.push(new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttemps - 1))
+                        var newTransaction = new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttemps - 1)
+                        transactionsQueue.push(newTransaction)
                     }
                 }
             }
             processedTransactions.push(this)
-            printf("Pushing to processed %d\n", processedTransactions.iterator.length)
         }
 
       if (from.uid < to.uid) from synchronized {
