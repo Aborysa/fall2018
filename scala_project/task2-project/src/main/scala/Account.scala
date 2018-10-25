@@ -10,6 +10,12 @@ case class TransactionRequestReceipt(toAccountNumber: String,
 
 case class BalanceRequest()
 
+
+object Account {
+    def props(accountId: String, bankId: String, initialBalance: Double = 0): Props = Props(new Account(accountId, bankId, initialBalance))
+}
+
+
 class Account(val accountId: String, val bankId: String, val initialBalance: Double = 0) extends Actor {
 
     private var transactions = HashMap[String, Transaction]()
@@ -23,22 +29,38 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
     }
 
     def getTransactions: List[Transaction] = {
-        // Should return a list of all Transaction-objects stored in transactions
-        ???
+        return transactions.values.toList
     }
 
     def allTransactionsCompleted: Boolean = {
-        // Should return whether all Transaction-objects in transactions are completed
-        ???
+        return getTransactions.foldLeft(true)(
+            (a, b) => a && b.isCompleted
+        )
     }
 
-    def withdraw(amount: Double): Unit = ??? // Like in part 1
-    def deposit(amount: Double): Unit = ??? // Like in part 1
-    def getBalanceAmount: Double = ??? // Like in part 1
+    def withdraw(amount: Double): Unit = {
+        val diff = balance.amount - amount
+        if(amount < 0){
+            throw new IllegalAmountException
+        } else if(diff < 0) {
+            throw new NoSufficientFundsException
+        }
+        balance.amount -= amount
+    } 
+
+    def deposit(amount: Double): Unit = {
+        if(amount < 0){
+            throw new IllegalAmountException
+        }
+        balance.amount += amount
+    } 
+
+    def getBalanceAmount: Double = {
+        return balance.amount
+    }
 
     def sendTransactionToBank(t: Transaction): Unit = {
-        // Should send a message containing t to the bank of this account
-        ???
+        BankManager.findBank(bankId) ! t
     }
 
     def transferTo(accountNumber: String, amount: Double): Transaction = {
@@ -69,21 +91,42 @@ class Account(val accountId: String, val bankId: String, val initialBalance: Dou
     }
 
     override def receive = {
-		case IdentifyActor => sender ! this
+        case IdentifyActor => sender ! this
 
-		case TransactionRequestReceipt(to, transactionId, transaction) => {
-			// Process receipt
-			???
-		}
+        case TransactionRequestReceipt(to, transactionId, transaction) => {
+            // something is wrong if this isn't true
+            if (to != getFullAddress || !transactions.contains(transactionId)){
+                throw new RuntimeException("Recieved a receipt for a transaction that was never sendt %s != %s || %s -> %b".format(to, getFullAddress, transactionId, transactions.contains(transactionId)))
+            }
+            // localTransaction may or may not? be the same object as transaction
+            val localTransaction = transactions(transactionId)
+            if(transaction.status == TransactionStatus.FAILED) {
+                deposit(localTransaction.amount)
+                localTransaction.status = TransactionStatus.FAILED
+            } else {
+                localTransaction.status = TransactionStatus.SUCCESS
+            }
 
-		case BalanceRequest => ??? // Should return current balance
+            localTransaction.receiptReceived = true
+            
 
-		case t: Transaction => {
-			// Handle incoming transaction
-			???
-		}
+        }
 
-		case msg => ???
+        case BalanceRequest => sender ! getBalanceAmount
+
+        case t: Transaction => {
+            try {
+                deposit(t.amount)
+            } catch {
+                case _: IllegalAmountException =>
+                    t.status = TransactionStatus.FAILED
+            }
+
+            sender ! new TransactionRequestReceipt(t.from, t.id, t)
+
+        }
+
+        case msg => throw new RuntimeException("Lmao dude wtf")
     }
 
 

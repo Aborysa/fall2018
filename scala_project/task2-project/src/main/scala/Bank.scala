@@ -14,34 +14,59 @@ case class IdentifyActor()
 class Bank(val bankId: String) extends Actor {
 
     val accountCounter = new AtomicInteger(1000)
+    
+
+
 
     def createAccount(initialBalance: Double): ActorRef = {
-        // Should create a new Account Actor and return its actor reference. Accounts should be assigned with unique ids (increment with 1).
-        ???
+        return BankManager.createAccount("%04d".format(accountCounter.addAndGet(1)), bankId, initialBalance)
+        //return context.actorOf(Account.props("%04d".format(accountCounter.getAndAdd(1)), bankId, initialBalance), "Account")
     }
 
     def findAccount(accountId: String): Option[ActorRef] = {
-        // Use BankManager to look up an account with ID accountId
-        ???
+        try{
+            return Some(BankManager.findAccount(bankId, accountId))
+        } catch {
+            case _: NoSuchElementException => return None
+        }
+        //return Util.toOption[ActorRef](BankManager.findAccount(bankId, accountId))
+        
     }
 
     def findOtherBank(bankId: String): Option[ActorRef] = {
-        // Use BankManager to look up a different bank with ID bankId
-        ???
+        try {
+            return Some(BankManager.findBank(bankId))
+        } catch {
+            case _: NoSuchElementException => return None
+        }
+        
+        //return Util.toOption[ActorRef](BankManager.findBank(bankId))
     }
 
     override def receive = {
-        case CreateAccountRequest(initialBalance) => ??? // Create a new account
-        case GetAccountRequest(id) => ??? // Return account
+        case CreateAccountRequest(initialBalance) => sender ! createAccount(initialBalance)
+        case GetAccountRequest(id) => {
+            sender ! (findAccount(id) match {
+                case Some(account) => account
+                case None => null
+            })
+        }
         case IdentifyActor => sender ! this
         case t: Transaction => processTransaction(t)
 
         case t: TransactionRequestReceipt => {
-        // Forward receipt
-        ???
+            val toBankId = t.toAccountNumber.substring(0, 4)
+            val toAccountId = t.toAccountNumber.substring(4)
+
+            if (toBankId != bankId) {
+                findOtherBank(toBankId).get ! t
+            } else {
+                findAccount(toAccountId).get ! t
+            }
+
         }
 
-        case msg => ???
+        case msg => throw new RuntimeException("Lmao dude wtf")
     }
 
     def processTransaction(t: Transaction): Unit = {
@@ -51,8 +76,31 @@ class Bank(val bankId: String) extends Actor {
         val toAccountId = if (isInternal) t.to else t.to.substring(4)
         val transactionStatus = t.status
         
-        // This method should forward Transaction t to an account or another bank, depending on the "to"-address.
-        // HINT: Make use of the variables that have been defined above.
-        ???
+        if (toBankId != bankId) {
+            findOtherBank(toBankId) match {
+                case Some(bank) => bank ! t
+                case None => {
+                    // This account should always exist
+                    t.status = TransactionStatus.FAILED
+                    findAccount(t.from.substring(4)).get ! new TransactionRequestReceipt(t.from, t.id, t) 
+                
+                    //
+                }
+            }
+        } else {
+            findAccount(toAccountId) match {
+                case Some(account) => account ! t
+                case None => {
+                    // This account should always exist
+                    t.status = TransactionStatus.FAILED
+                    val transactionReceipt = new TransactionRequestReceipt(t.from, t.id, t)
+                    if (isInternal){
+                        findAccount(t.from.substring(4)).get ! transactionReceipt
+                    } else {
+                        findOtherBank(t.from.substring(0, 4)).get ! transactionReceipt
+                    }
+                }
+            }
+        }
     }
 }
